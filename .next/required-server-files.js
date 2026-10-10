@@ -1,7 +1,9 @@
 self.__SERVER_FILES_MANIFEST={
   "version": 1,
   "config": {
-    "env": {},
+    "env": {
+      "NEXT_PUBLIC_BASE_PATH": ""
+    },
     "webpack": null,
     "typescript": {
       "ignoreBuildErrors": false
