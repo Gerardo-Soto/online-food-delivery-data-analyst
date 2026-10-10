@@ -21,7 +21,7 @@ module.exports = nextConfig*/
 
 import type { NextConfig } from "next";
 
-const repoName = "online-food-delivery-dashboard";
+const repoName = "online-food-delivery-data-analyst";
 
 const isGitHubActions =
   process.env.GITHUB_ACTIONS === "true";
@@ -41,10 +41,6 @@ const nextConfig: NextConfig = {
 
   images: {
     unoptimized: true,
-  },
-
-  env: {
-    NEXT_PUBLIC_BASE_PATH: basePath,
   },
 };
 

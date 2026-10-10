@@ -38,45 +38,55 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-  const loadData = async () => {
-    try {
-      const basePath =
-        process.env.NEXT_PUBLIC_BASE_PATH || "";
-
-      const response = await fetch(
-        `${basePath}/data/online_food_delivery_limpio.csv`
-      );
-
-      if (!response.ok) {
-        throw new Error(
-          `Error cargando CSV: ${response.status}`
+    async function loadData() {
+      try {
+        const response = await fetch(
+          "../data/online_food_delivery_limpio.csv"
         );
+
+        if (!response.ok) {
+          throw new Error(
+            `Error HTTP: ${response.status}`
+          );
+        }
+
+        const csv = await response.text();
+
+        Papa.parse<FoodOrder>(csv, {
+          header: true,
+          skipEmptyLines: true,
+
+          complete: (results) => {
+            console.log(
+              "Registros originales:",
+              results.data.length
+            );
+
+            const cleanedData = cleanData(
+              results.data
+            );
+
+            console.log(
+              "Registros después de limpieza:",
+              cleanedData.length
+            );
+
+            setData(cleanedData);
+            setLoading(false);
+          },
+        });
+      } catch (error) {
+        console.error(
+          "Error cargando dataset:",
+          error
+        );
+
+        setLoading(false);
       }
-
-      const csv = await response.text();
-
-      Papa.parse<FoodOrder>(csv, {
-        header: true,
-        skipEmptyLines: true,
-
-        complete: (results) => {
-          const cleaned =
-            cleanData(results.data);
-
-          setData(cleaned);
-        },
-      });
-    } catch (error) {
-      console.error(
-        "Error cargando los datos:",
-        error
-      );
     }
-  };
 
-  loadData();
-}, []);
-
+    loadData();
+  }, []);
 
   const filterOptions = useMemo(() => {
   return {
