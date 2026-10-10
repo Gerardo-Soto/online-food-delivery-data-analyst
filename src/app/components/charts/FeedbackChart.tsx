@@ -122,11 +122,11 @@ export default function FeedbackChart({
 
         <div>
           <h2 className="font-semibold text-gray-900">
-            Conversión por Feedback
+            El feedback marca la mayor diferencia
           </h2>
 
           <p className="text-sm text-gray-500">
-            Porcentaje de Output = Yes
+            Compara la Intención de recompra entre clientes con feedback positivo y negativo.
           </p>
         </div>
 

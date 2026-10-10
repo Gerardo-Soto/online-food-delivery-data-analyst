@@ -11,6 +11,7 @@ import {
   Tooltip,
   ResponsiveContainer,
   LabelList,
+  Cell,
 } from "recharts";
 
 import type { ConversionData } from "../../lib/analytics";
@@ -90,6 +91,10 @@ export default function ConversionBarChart({
   subtitle = "Porcentaje de Output = Yes",
   data,
 }: ConversionBarChartProps) {
+
+  const maxRate = data.length > 0
+    ? Math.max(...data.map((item) => item.yesRate))
+    : 0;
 
   // Más categorías requieren una gráfica un poco más alta.
   const chartHeight = Math.max(
@@ -192,10 +197,21 @@ export default function ConversionBarChart({
 
             <Bar
               dataKey="yesRate"
-              fill="#111827"
               radius={[0, 6, 6, 0]}
               animationDuration={800}
             >
+
+              {data.map((item) => (
+                <Cell
+                  key={item.category}
+                  fill={
+                    item.yesRate === maxRate
+                      ? "#111827"
+                      : "#9ca3af"
+                  }
+                />
+              ))}
+
 
               <LabelList
                 dataKey="yesRate"

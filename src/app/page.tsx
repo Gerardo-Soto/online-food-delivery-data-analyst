@@ -17,6 +17,7 @@ import {
   filterData,
   getUniqueValues,
   initialFilters,
+  generateDashboardInsights,
 } from "./lib/analytics";
 
 import type { 
@@ -26,6 +27,7 @@ import type {
 import FeedbackChart from "./components/charts/FeedbackChart";
 import ConversionBarChart from "./components/charts/ConversionBarChart";
 import DashboardFilters from "./components/DashboardFilters";
+import InsightsPanel from "./components/InsightsPanel";
 
 export default function Home() {
   const [data, setData] = useState<FoodOrder[]>([]);
@@ -39,7 +41,7 @@ export default function Home() {
     async function loadData() {
       try {
         const response = await fetch(
-          "/data/online_food_delivery_limpio.csv"
+          "./data/online_food_delivery_limpio.csv"
         );
 
         if (!response.ok) {
@@ -121,6 +123,13 @@ export default function Home() {
   );
 }, [data, filters]);
 
+//check if filteredData has any records
+const hasData = filteredData.length > 0;
+
+const activeFilters = Object.values(filters).filter(
+  (value) => value !== "All"
+).length;
+
   const kpis = calculateKpis(filteredData);
   
   const feedbackData =
@@ -134,6 +143,15 @@ export default function Home() {
 
   const incomeData =
   getIncomeConversion(filteredData);
+
+  const insights =
+  generateDashboardInsights(
+    filteredData,
+    feedbackData,
+    occupationData,
+    maritalData,
+    incomeData
+  );
 
   console.log(
   "Feedback:",
@@ -173,7 +191,10 @@ console.log(
         </h1>
 
         <p className="mt-2 text-gray-500">
-          Customer behavior dashboard
+          Explora qué características de los clientes están asociadas con una mayor intención de volver a ordenar.
+        </p>
+        <p className="text-sm text-gray-500">
+          Fuente: <a href="https://www.kaggle.com/datasets/srisyra02/online-food-ordering-dataset/data">kaggle.com/datasets/srisyra02/online-food-ordering-dataset/data</a> 
         </p>
 
         <DashboardFilters
@@ -184,6 +205,19 @@ console.log(
             setFilters(initialFilters)
           }
         />
+
+        {activeFilters > 0 && (
+          <div className="mt-4 flex items-center gap-2">
+            <span className="rounded-full bg-gray-900 px-3 py-1 text-xs font-medium text-white">
+              {activeFilters}{" "}
+              {activeFilters === 1 ? "filtro activo" : "filtros activos"}
+            </span>
+
+            <span className="text-sm text-gray-500">
+              {filteredData.length} registros encontrados
+            </span>
+          </div>
+        )}
 
         <section className="mt-8 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
 
@@ -238,27 +272,30 @@ console.log(
   <FeedbackChart data={feedbackData} />
 
   <ConversionBarChart
-    title="Conversiones por Ocupación"
-    subtitle="Porcentaje de Output = Yes"
+    title="La conversión varía según la ocupación"
+    subtitle="Identifica qué grupos ocupacionales presentan una mayor proporción de Compradores"
     data={occupationData}
   />
 
   <ConversionBarChart
-    title="Conversiones por Estado Civil"
-    subtitle="Porcentaje de Output = Yes"
+    title="La intención de recompra cambia por estado civil"
+    subtitle="Compara la tasa de Compra entre los distintos grupos de estado civil."
     data={maritalData}
   />
 
   <ConversionBarChart
-    title="Conversiones por Ingreso Mensual"
-    subtitle="Porcentaje de Output = Yes"
+    title="¿Cómo cambia la conversión según el ingreso?"
+    subtitle="Observa si la Intención de recompra sigue algún patrón entre los diferentes niveles de ingreso."
     data={incomeData}
   />
 
-</section>
+    </section>
 
+    <InsightsPanel
+      insights={insights}
+    />
       </div>
-
+      
     </main>
   );
 }

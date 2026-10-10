@@ -892,6 +892,8 @@ __turbopack_context__.s([
     ()=>cleanData,
     "filterData",
     ()=>filterData,
+    "generateDashboardInsights",
+    ()=>generateDashboardInsights,
     "getConversionByCategory",
     ()=>getConversionByCategory,
     "getFeedbackConversion",
@@ -1016,6 +1018,78 @@ function getUniqueValues(data, column) {
         ...new Set(data.map((row)=>row[column]).filter(Boolean))
     ].sort();
 }
+function getHighestConversion(data) {
+    if (data.length === 0) {
+        return null;
+    }
+    return [
+        ...data
+    ].sort((a, b)=>b.yesRate - a.yesRate)[0];
+}
+function getLowestConversion(data) {
+    if (data.length === 0) {
+        return null;
+    }
+    return [
+        ...data
+    ].sort((a, b)=>a.yesRate - b.yesRate)[0];
+}
+function generateDashboardInsights(filteredData, feedbackData, occupationData, maritalData, incomeData) {
+    const insights = [];
+    /*
+   * Insight 1
+   * Feedback
+   */ const positiveFeedback = feedbackData.find((item)=>item.category === "Positive");
+    const negativeFeedback = feedbackData.find((item)=>item.category === "Negative");
+    if (positiveFeedback && negativeFeedback) {
+        const difference = positiveFeedback.yesRate - negativeFeedback.yesRate;
+        insights.push({
+            title: "Feedback y conversión",
+            description: `Los registros con feedback positivo presentan ` + `${positiveFeedback.yesRate.toFixed(1)}% de Output = Yes, ` + `frente a ${negativeFeedback.yesRate.toFixed(1)}% con feedback negativo. ` + `La diferencia observada es de ${Math.abs(difference).toFixed(1)} puntos porcentuales.`
+        });
+    }
+    /*
+   * Insight 2
+   * Occupation
+   */ const occupationHighest = getHighestConversion(occupationData);
+    const occupationLowest = getLowestConversion(occupationData);
+    if (occupationHighest && occupationLowest && occupationHighest.category !== occupationLowest.category) {
+        insights.push({
+            title: "Segmentación por ocupación",
+            description: `${occupationHighest.category} presenta la mayor tasa Yes ` + `(${occupationHighest.yesRate.toFixed(1)}%) entre las ocupaciones visibles, ` + `mientras que ${occupationLowest.category} presenta ` + `${occupationLowest.yesRate.toFixed(1)}%.`
+        });
+    }
+    /*
+   * Insight 3
+   * Marital Status
+   */ const maritalHighest = getHighestConversion(maritalData);
+    const maritalLowest = getLowestConversion(maritalData);
+    if (maritalHighest && maritalLowest && maritalHighest.category !== maritalLowest.category) {
+        insights.push({
+            title: "Estado civil",
+            description: `${maritalHighest.category} tiene la mayor tasa Yes ` + `(${maritalHighest.yesRate.toFixed(1)}%) dentro del segmento actual. ` + `${maritalLowest.category} registra ${maritalLowest.yesRate.toFixed(1)}%.`
+        });
+    }
+    /*
+   * Insight 4
+   * Monthly Income
+   */ const incomeHighest = getHighestConversion(incomeData);
+    if (incomeHighest) {
+        insights.push({
+            title: "Ingreso mensual",
+            description: `El grupo ${incomeHighest.category} presenta la mayor tasa Yes ` + `entre los niveles de ingreso visibles, con ` + `${incomeHighest.yesRate.toFixed(1)}%.`
+        });
+    }
+    /*
+   * Advertencia por tamaño de muestra
+   */ if (filteredData.length < 30) {
+        insights.push({
+            title: "Muestra reducida",
+            description: `Los filtros actuales dejan solamente ${filteredData.length} registros. ` + `Los porcentajes pueden ser sensibles a pocos casos, por lo que conviene interpretarlos con cautela.`
+        });
+    }
+    return insights;
+}
 }),
 "[project]/src/app/page.tsx [app-ssr] (ecmascript)", ((__turbopack_context__) => {
 "use strict";
@@ -1090,6 +1164,7 @@ function Home() {
     const occupationData = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$app$2f$lib$2f$analytics$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["getOccupationConversion"])(filteredData);
     const maritalData = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$app$2f$lib$2f$analytics$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["getMaritalStatusConversion"])(filteredData);
     const incomeData = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$app$2f$lib$2f$analytics$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["getIncomeConversion"])(filteredData);
+    const insights = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$app$2f$lib$2f$analytics$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["generateDashboardInsights"])(filteredData, feedbackData, occupationData, maritalData, incomeData);
     console.log("Feedback:", feedbackData);
     console.log("Occupation:", occupationData);
     console.log("Marital Status:", maritalData);
@@ -1101,12 +1176,12 @@ function Home() {
                 children: "Cargando datos..."
             }, void 0, false, {
                 fileName: "[project]/src/app/page.tsx",
-                lineNumber: 161,
+                lineNumber: 171,
                 columnNumber: 9
             }, this)
         }, void 0, false, {
             fileName: "[project]/src/app/page.tsx",
-            lineNumber: 160,
+            lineNumber: 170,
             columnNumber: 7
         }, this);
     }
@@ -1120,7 +1195,7 @@ function Home() {
                     children: "Online Food Delivery"
                 }, void 0, false, {
                     fileName: "[project]/src/app/page.tsx",
-                    lineNumber: 171,
+                    lineNumber: 181,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1128,7 +1203,7 @@ function Home() {
                     children: "Customer behavior dashboard"
                 }, void 0, false, {
                     fileName: "[project]/src/app/page.tsx",
-                    lineNumber: 175,
+                    lineNumber: 185,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$app$2f$components$2f$DashboardFilters$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
@@ -1138,7 +1213,7 @@ function Home() {
                     onReset: ()=>setFilters(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$app$2f$lib$2f$analytics$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["initialFilters"])
                 }, void 0, false, {
                     fileName: "[project]/src/app/page.tsx",
-                    lineNumber: 179,
+                    lineNumber: 189,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("section", {
@@ -1152,7 +1227,7 @@ function Home() {
                                     children: "Registros analizados"
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/page.tsx",
-                                    lineNumber: 192,
+                                    lineNumber: 202,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1160,13 +1235,13 @@ function Home() {
                                     children: kpis.total
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/page.tsx",
-                                    lineNumber: 196,
+                                    lineNumber: 206,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/app/page.tsx",
-                            lineNumber: 191,
+                            lineNumber: 201,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1177,7 +1252,7 @@ function Home() {
                                     children: "Tasa Output Yes"
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/page.tsx",
-                                    lineNumber: 203,
+                                    lineNumber: 213,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1188,13 +1263,13 @@ function Home() {
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/app/page.tsx",
-                                    lineNumber: 207,
+                                    lineNumber: 217,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/app/page.tsx",
-                            lineNumber: 202,
+                            lineNumber: 212,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1205,7 +1280,7 @@ function Home() {
                                     children: "Feedback positivo"
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/page.tsx",
-                                    lineNumber: 214,
+                                    lineNumber: 224,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1216,13 +1291,13 @@ function Home() {
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/app/page.tsx",
-                                    lineNumber: 218,
+                                    lineNumber: 228,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/app/page.tsx",
-                            lineNumber: 213,
+                            lineNumber: 223,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1233,7 +1308,7 @@ function Home() {
                                     children: "Edad promedio"
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/page.tsx",
-                                    lineNumber: 225,
+                                    lineNumber: 235,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1241,19 +1316,19 @@ function Home() {
                                     children: kpis.averageAge.toFixed(1)
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/page.tsx",
-                                    lineNumber: 229,
+                                    lineNumber: 239,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/app/page.tsx",
-                            lineNumber: 224,
+                            lineNumber: 234,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/app/page.tsx",
-                    lineNumber: 188,
+                    lineNumber: 198,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("section", {
@@ -1263,7 +1338,7 @@ function Home() {
                             data: feedbackData
                         }, void 0, false, {
                             fileName: "[project]/src/app/page.tsx",
-                            lineNumber: 238,
+                            lineNumber: 248,
                             columnNumber: 3
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$app$2f$components$2f$charts$2f$ConversionBarChart$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
@@ -1272,7 +1347,7 @@ function Home() {
                             data: occupationData
                         }, void 0, false, {
                             fileName: "[project]/src/app/page.tsx",
-                            lineNumber: 240,
+                            lineNumber: 250,
                             columnNumber: 3
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$app$2f$components$2f$charts$2f$ConversionBarChart$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
@@ -1281,7 +1356,7 @@ function Home() {
                             data: maritalData
                         }, void 0, false, {
                             fileName: "[project]/src/app/page.tsx",
-                            lineNumber: 246,
+                            lineNumber: 256,
                             columnNumber: 3
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$app$2f$components$2f$charts$2f$ConversionBarChart$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
@@ -1290,24 +1365,24 @@ function Home() {
                             data: incomeData
                         }, void 0, false, {
                             fileName: "[project]/src/app/page.tsx",
-                            lineNumber: 252,
+                            lineNumber: 262,
                             columnNumber: 3
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/app/page.tsx",
-                    lineNumber: 236,
+                    lineNumber: 246,
                     columnNumber: 9
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/src/app/page.tsx",
-            lineNumber: 169,
+            lineNumber: 179,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/src/app/page.tsx",
-        lineNumber: 167,
+        lineNumber: 177,
         columnNumber: 5
     }, this);
 }
