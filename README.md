@@ -1,5 +1,11 @@
 # 🍔 Online Food Delivery — Data Analysis
 
+Análisis exploratorio e interactivo del comportamiento de clientes en pedidos de comida online, utilizando Python, Next.js y visualizaciones dinámicas.
+
+## 🔗 Dashboard en vivo
+
+👉 [Ver dashboard interactivo](https://gerardo-soto.github.io/online-food-delivery-data-analyst/)
+
 ## 📌 Descripción del proyecto
 
 Este proyecto analiza un conjunto de datos de clientes de una plataforma de pedidos de comida online con el objetivo de identificar patrones de comportamiento, relaciones entre variables y factores asociados con la intención de volver a realizar un pedido.
@@ -164,6 +170,12 @@ El dataset original fue obtenido de Kaggle:
 [Online Food Ordering Dataset — Kaggle](https://www.kaggle.com/datasets/srisyra02/online-food-ordering-dataset/data)
 
 Los datos fueron utilizados con fines educativos y de práctica de análisis de datos.
+
+## 📊 Dashboard interactivo
+
+El dashboard permite explorar los datos mediante filtros por género, ocupación, estado civil e ingreso mensual.
+
+👉 [Abrir dashboard](https://gerardo-soto.github.io/online-food-delivery-data-analyst/)
 
 ---
 

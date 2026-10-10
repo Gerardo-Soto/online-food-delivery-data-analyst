@@ -28,6 +28,7 @@ import FeedbackChart from "./components/charts/FeedbackChart";
 import ConversionBarChart from "./components/charts/ConversionBarChart";
 import DashboardFilters from "./components/DashboardFilters";
 import InsightsPanel from "./components/InsightsPanel";
+import RecommendationsPanel from "./components/RecommendationsPanel";
 
 export default function Home() {
   const [data, setData] = useState<FoodOrder[]>([]);
@@ -49,7 +50,7 @@ export default function Home() {
           ? "/online-food-delivery-data-analyst/data/online_food_delivery_limpio.csv"
           : "/data/online_food_delivery_limpio.csv";
 
-      console.log("URL CSV:", csvUrl);
+      //console.log("URL CSV:", csvUrl);
 
       const response = await fetch(csvUrl);
 
@@ -68,10 +69,10 @@ export default function Home() {
 
       const cleanedData = cleanData(results.data);
 
-      console.log(
+      /*console.log(
         "Registros cargados:",
         cleanedData.length
-      );
+      );*/
 
       setData(cleanedData);
 
@@ -162,25 +163,25 @@ const activeFilters = Object.values(filters).filter(
     incomeData
   );
 
-  console.log(
+  /*console.log(
   "Feedback:",
   feedbackData
-);
+);*/
 
-console.log(
+/*console.log(
   "Occupation:",
   occupationData
-);
+);*/
 
-console.log(
+/*console.log(
   "Marital Status:",
   maritalData
-);
+);*/
 
-console.log(
+/*console.log(
   "Monthly Income:",
   incomeData
-);
+);*/
 
   if (loading) {
     return (
@@ -303,6 +304,9 @@ console.log(
     <InsightsPanel
       insights={insights}
     />
+
+    <RecommendationsPanel />
+    
       </div>
       
     </main>
