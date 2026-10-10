@@ -18,7 +18,7 @@ import {
   getUniqueValues,
   initialFilters,
   generateDashboardInsights,
-} from "../lib/analytics";
+} from "./lib/analytics";
 
 import type { 
   FoodOrder, 
