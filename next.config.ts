@@ -21,7 +21,7 @@ module.exports = nextConfig*/
 
 import type { NextConfig } from "next";
 
-const repoName = "online-food-delivery-data-analyst";
+const repoName = "online-food-delivery-dashboard";
 
 const isGitHubActions =
   process.env.GITHUB_ACTIONS === "true";
