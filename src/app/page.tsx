@@ -1,6 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import {
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import Papa from "papaparse";
 
 import {
@@ -10,12 +14,25 @@ import {
   getOccupationConversion,
   getMaritalStatusConversion,
   getIncomeConversion,
+  filterData,
+  getUniqueValues,
+  initialFilters,
 } from "./lib/analytics";
 
-import type { FoodOrder } from "./lib/analytics";
+import type { 
+  FoodOrder, 
+  DashboardFilters as DashboardFiltersType,
+} from "./lib/analytics";
+import FeedbackChart from "./components/charts/FeedbackChart";
+import ConversionBarChart from "./components/charts/ConversionBarChart";
+import DashboardFilters from "./components/DashboardFilters";
 
 export default function Home() {
   const [data, setData] = useState<FoodOrder[]>([]);
+  const [filters, setFilters] =
+  useState<DashboardFiltersType>(
+    initialFilters
+  );
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -69,19 +86,54 @@ export default function Home() {
     loadData();
   }, []);
 
-  const kpis = calculateKpis(data);
+  const filterOptions = useMemo(() => {
+  return {
+    genders:
+      getUniqueValues(
+        data,
+        "Gender"
+      ),
+
+    occupations:
+      getUniqueValues(
+        data,
+        "Occupation"
+      ),
+
+    maritalStatuses:
+      getUniqueValues(
+        data,
+        "Marital Status"
+      ),
+
+    incomes:
+      getUniqueValues(
+        data,
+        "Monthly Income"
+      ),
+  };
+}, [data]);
+
+  const filteredData = useMemo(() => {
+  return filterData(
+    data,
+    filters
+  );
+}, [data, filters]);
+
+  const kpis = calculateKpis(filteredData);
   
   const feedbackData =
-  getFeedbackConversion(data);
+  getFeedbackConversion(filteredData);
 
   const occupationData =
-  getOccupationConversion(data);
+  getOccupationConversion(filteredData);
 
   const maritalData =
-  getMaritalStatusConversion(data);
+  getMaritalStatusConversion(filteredData);
 
   const incomeData =
-  getIncomeConversion(data);
+  getIncomeConversion(filteredData);
 
   console.log(
   "Feedback:",
@@ -123,6 +175,15 @@ console.log(
         <p className="mt-2 text-gray-500">
           Customer behavior dashboard
         </p>
+
+        <DashboardFilters
+          filters={filters}
+          options={filterOptions}
+          onChange={setFilters}
+          onReset={() =>
+            setFilters(initialFilters)
+          }
+        />
 
         <section className="mt-8 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
 
@@ -174,93 +235,25 @@ console.log(
 
         <section className="mt-10 grid gap-6 lg:grid-cols-2">
 
-  <div className="rounded-xl bg-white p-6 shadow-sm">
-    <h2 className="mb-4 text-xl font-semibold">
-      Feedback
-    </h2>
+  <FeedbackChart data={feedbackData} />
 
-    {feedbackData.map((item) => (
-      <div
-        key={item.category}
-        className="mb-3 flex justify-between"
-      >
-        <span>
-          {item.category}
-        </span>
+  <ConversionBarChart
+    title="Conversiones por Ocupación"
+    subtitle="Porcentaje de Output = Yes"
+    data={occupationData}
+  />
 
-        <span className="font-semibold">
-          {item.yes} Yes /{" "}
-          {item.yesRate.toFixed(1)}%
-        </span>
-      </div>
-    ))}
-  </div>
+  <ConversionBarChart
+    title="Conversiones por Estado Civil"
+    subtitle="Porcentaje de Output = Yes"
+    data={maritalData}
+  />
 
-
-  <div className="rounded-xl bg-white p-6 shadow-sm">
-    <h2 className="mb-4 text-xl font-semibold">
-      Occupation
-    </h2>
-
-    {occupationData.map((item) => (
-      <div
-        key={item.category}
-        className="mb-3 flex justify-between"
-      >
-        <span>
-          {item.category}
-        </span>
-
-        <span className="font-semibold">
-          {item.yesRate.toFixed(1)}%
-        </span>
-      </div>
-    ))}
-  </div>
-
-
-  <div className="rounded-xl bg-white p-6 shadow-sm">
-    <h2 className="mb-4 text-xl font-semibold">
-      Marital Status
-    </h2>
-
-    {maritalData.map((item) => (
-      <div
-        key={item.category}
-        className="mb-3 flex justify-between"
-      >
-        <span>
-          {item.category}
-        </span>
-
-        <span className="font-semibold">
-          {item.yesRate.toFixed(1)}%
-        </span>
-      </div>
-    ))}
-  </div>
-
-
-  <div className="rounded-xl bg-white p-6 shadow-sm">
-    <h2 className="mb-4 text-xl font-semibold">
-      Monthly Income
-    </h2>
-
-    {incomeData.map((item) => (
-      <div
-        key={item.category}
-        className="mb-3 flex justify-between"
-      >
-        <span>
-          {item.category}
-        </span>
-
-        <span className="font-semibold">
-          {item.yesRate.toFixed(1)}%
-        </span>
-      </div>
-    ))}
-  </div>
+  <ConversionBarChart
+    title="Conversiones por Ingreso Mensual"
+    subtitle="Porcentaje de Output = Yes"
+    data={incomeData}
+  />
 
 </section>
 
