@@ -36,97 +36,41 @@ export default function Home() {
     initialFilters
   );
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
   const loadData = async () => {
     try {
-      setLoading(true);
-      setError(null);
-
       const basePath =
         process.env.NEXT_PUBLIC_BASE_PATH || "";
 
-      const csvUrl =
-        `${basePath}/data/online_food_delivery_limpio.csv`;
-
-      console.log(
-        "1. URL CSV:",
-        csvUrl
-      );
-
-      const response =
-        await fetch(csvUrl);
-
-      console.log(
-        "2. Respuesta:",
-        response.status,
-        response.ok
+      const response = await fetch(
+        `${basePath}/data/online_food_delivery_limpio.csv`
       );
 
       if (!response.ok) {
         throw new Error(
-          `No se pudo cargar el CSV. HTTP ${response.status}`
+          `Error cargando CSV: ${response.status}`
         );
       }
 
-      const csv =
-        await response.text();
+      const csv = await response.text();
 
-      console.log(
-        "3. CSV descargado:",
-        csv.length,
-        "caracteres"
-      );
+      Papa.parse<FoodOrder>(csv, {
+        header: true,
+        skipEmptyLines: true,
 
-      const results =
-        Papa.parse<FoodOrder>(
-          csv,
-          {
-            header: true,
-            skipEmptyLines: true,
-          }
-        );
+        complete: (results) => {
+          const cleaned =
+            cleanData(results.data);
 
-      console.log(
-        "4. Filas parseadas:",
-        results.data.length
-      );
-
-      console.log(
-        "5. Errores Papa Parse:",
-        results.errors
-      );
-
-      const cleanedData =
-        cleanData(results.data);
-
-      console.log(
-        "6. Datos limpios:",
-        cleanedData.length
-      );
-
-      setData(cleanedData);
-
-    } catch (err: unknown) {
-
+          setData(cleaned);
+        },
+      });
+    } catch (error) {
       console.error(
-        "Error cargando datos:",
-        err
+        "Error cargando los datos:",
+        error
       );
-
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError(
-          "Ocurrió un error desconocido cargando los datos."
-        );
-      }
-
-    } finally {
-
-      setLoading(false);
-
     }
   };
 
@@ -219,6 +163,13 @@ console.log(
   incomeData
 );
 
+  if (loading) {
+    return (
+      <main className="p-10">
+        <p>Cargando datos...</p>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-gray-100 p-8">
