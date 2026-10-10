@@ -18,16 +18,16 @@ import {
   getUniqueValues,
   initialFilters,
   generateDashboardInsights,
-} from "../lib/analytics";
+} from "./lib/analytics";
 
 import type { 
   FoodOrder, 
   DashboardFilters as DashboardFiltersType,
-} from "../lib/analytics";
-import FeedbackChart from "../components/charts/FeedbackChart";
-import ConversionBarChart from "../components/charts/ConversionBarChart";
-import DashboardFilters from "../components/DashboardFilters";
-import InsightsPanel from "../components/InsightsPanel";
+} from "./lib/analytics";
+import FeedbackChart from "./components/charts/FeedbackChart";
+import ConversionBarChart from "./components/charts/ConversionBarChart";
+import DashboardFilters from "./components/DashboardFilters";
+import InsightsPanel from "./components/InsightsPanel";
 
 export default function Home() {
   const [data, setData] = useState<FoodOrder[]>([]);
