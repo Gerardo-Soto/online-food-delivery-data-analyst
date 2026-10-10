@@ -36,57 +36,66 @@ export default function Home() {
     initialFilters
   );
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    async function loadData() {
-      try {
-        const response = await fetch(
-          "../data/online_food_delivery_limpio.csv"
+  const loadData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const csvUrl =
+        process.env.NODE_ENV === "production"
+          ? "/online-food-delivery-data-analyst/data/online_food_delivery_limpio.csv"
+          : "/data/online_food_delivery_limpio.csv";
+
+      console.log("URL CSV:", csvUrl);
+
+      const response = await fetch(csvUrl);
+
+      if (!response.ok) {
+        throw new Error(
+          `No se pudo cargar el CSV. HTTP ${response.status}`
         );
-
-        if (!response.ok) {
-          throw new Error(
-            `Error HTTP: ${response.status}`
-          );
-        }
-
-        const csv = await response.text();
-
-        Papa.parse<FoodOrder>(csv, {
-          header: true,
-          skipEmptyLines: true,
-
-          complete: (results) => {
-            console.log(
-              "Registros originales:",
-              results.data.length
-            );
-
-            const cleanedData = cleanData(
-              results.data
-            );
-
-            console.log(
-              "Registros después de limpieza:",
-              cleanedData.length
-            );
-
-            setData(cleanedData);
-            setLoading(false);
-          },
-        });
-      } catch (error) {
-        console.error(
-          "Error cargando dataset:",
-          error
-        );
-
-        setLoading(false);
       }
-    }
 
-    loadData();
-  }, []);
+      const csv = await response.text();
+
+      const results = Papa.parse<FoodOrder>(csv, {
+        header: true,
+        skipEmptyLines: true,
+      });
+
+      const cleanedData = cleanData(results.data);
+
+      console.log(
+        "Registros cargados:",
+        cleanedData.length
+      );
+
+      setData(cleanedData);
+
+    } catch (err: unknown) {
+      console.error(
+        "Error cargando CSV:",
+        err
+      );
+
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError(
+          "Error desconocido cargando los datos."
+        );
+      }
+
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  loadData();
+}, []);
 
   const filterOptions = useMemo(() => {
   return {
