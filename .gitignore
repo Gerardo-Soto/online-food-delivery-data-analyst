@@ -3,6 +3,9 @@ __pycache__/
 *.py[codz]
 *$py.class
 
+# next js static files
+/out
+
 # C extensions
 *.so
 
