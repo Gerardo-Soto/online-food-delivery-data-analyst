@@ -6,6 +6,12 @@ Análisis exploratorio e interactivo del comportamiento de clientes en pedidos d
 
 👉 [Ver dashboard interactivo](https://gerardo-soto.github.io/online-food-delivery-data-analyst/)
 
+## 🔗 Análisis estadístico
+👉 [Abrir Análisis estadístico](https://github.com/Gerardo-Soto/online-food-delivery-data-analyst/blob/main/analisis_estadistico_online_food_delivery_v2.ipynb)
+
+## 🔗 Análisis orientado a Excel
+👉 [Abrir Análisis orientado a Excel](https://docs.google.com/spreadsheets/d/1O2Z6PEI3Pxc80ekOz20ex7wEq8ZWpMZoukJ39sB9e70/edit?usp=sharing)
+
 ## 📌 Descripción del proyecto
 
 Este proyecto analiza un conjunto de datos de clientes de una plataforma de pedidos de comida online con el objetivo de identificar patrones de comportamiento, relaciones entre variables y factores asociados con la intención de volver a realizar un pedido.
@@ -55,6 +61,9 @@ A partir de este archivo se realizan las tareas de limpieza, exploración y aná
 
 ### `analisis_estadistico_online_food_delivery_v2.ipynb`
 
+
+👉 [Abrir Análisis estadístico](https://github.com/Gerardo-Soto/online-food-delivery-data-analyst/blob/main/analisis_estadistico_online_food_delivery_v2.ipynb)
+
 Notebook principal de análisis desarrollado con Python.
 
 Incluye:
@@ -82,6 +91,8 @@ Incluye:
 ### `online_food_delivery_google_sheets_analysis.xlsx`
 
 Versión del análisis orientada a Excel y Google Sheets.
+
+👉 [Abrir Análisis orientado a Excel](https://docs.google.com/spreadsheets/d/1O2Z6PEI3Pxc80ekOz20ex7wEq8ZWpMZoukJ39sB9e70/edit?usp=sharing)
 
 Está organizada en diferentes hojas para facilitar la revisión del proyecto:
 
